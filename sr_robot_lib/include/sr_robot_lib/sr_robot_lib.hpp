@@ -48,6 +48,7 @@
 #include <sr_robot_msgs/ChangeControlType.h>
 #include <sr_robot_msgs/MotorSystemControls.h>
 #include <sr_robot_msgs/ChangeMotorSystemControls.h>
+#include <sr_robot_msgs/timeStampedFloat64.h>
 
 #include <sr_utilities/sr_math_utils.hpp>
 #include <sr_utilities/calibration.hpp>
@@ -285,6 +286,7 @@ namespace shadow_robot
     ///These publishers are useful for debugging
     static const int nb_debug_publishers_const;
     std::vector<ros::Publisher> debug_publishers;
+    ros::Publisher debug_timestamped_publisher;
     /**
      * A vector containing pairs:
      *  - associate a motor index
@@ -297,6 +299,8 @@ namespace shadow_robot
     boost::shared_mutex debug_mutex;
     ros::NodeHandle node_handle;
     std_msgs::Int16 msg_debug;
+    sr_robot_msgs::timeStampedFloat64 msg_debug_2;
+    double intial_timestamp;
 #endif
 
     ///The update rate for each motor information
