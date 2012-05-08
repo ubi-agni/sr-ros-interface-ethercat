@@ -107,7 +107,7 @@ namespace shadow_joints
     JointToSensor joint_to_sensor;
 
     //used to filter the position and the velocity
-    sr_math_utils::filters::CombinedFilter pos_filter;
+    sr_math_utils::filters::LowPassFilter pos_filter;
     //used to filter the effort
     sr_math_utils::filters::LowPassFilter effort_filter;
 
