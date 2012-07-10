@@ -724,19 +724,19 @@ namespace shadow_robot
         actuator->state_.pwm_ =
           static_cast<int>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
 #ifdef DEBUG_PUBLISHER
-        if( joint_tmp->motor->motor_id == 16 )
+        if( joint_tmp->motor->motor_id == 6 )
         {
           //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
           msg_debug.data = actuator->state_.pwm_;
           debug_publishers[5].publish(msg_debug);
         }
-        else if( joint_tmp->motor->motor_id == 15 )
+        else if( joint_tmp->motor->motor_id == 5 )
         {
           //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
           msg_debug.data = actuator->state_.pwm_;
           debug_publishers[6].publish(msg_debug);
         }
-        else if( joint_tmp->motor->motor_id == 17 )
+        else if( joint_tmp->motor->motor_id == 7 )
         {
           //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
           msg_debug.data = actuator->state_.pwm_;
