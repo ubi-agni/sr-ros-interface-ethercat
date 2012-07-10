@@ -47,6 +47,7 @@ namespace shadow_robot
     : main_pic_idle_time(0), main_pic_idle_time_min(1000), nullify_demand_(false), motor_current_state(
       operation_mode::device_update_state::INITIALIZATION), tactile_current_state(operation_mode::device_update_state::INITIALIZATION),
       config_index(MOTOR_CONFIG_FIRST_VALUE),
+      intial_timestamp(0.0),
       nh_tilde("~")
   {
     //advertise the service to nullify the demand sent to the motor
@@ -83,6 +84,7 @@ namespace shadow_robot
       ss << "srh/debug_" << i;
       debug_publishers.push_back(node_handle.advertise<std_msgs::Int16>(ss.str().c_str(),100));
     }
+    debug_timestamped_publisher = node_handle.advertise<sr_robot_msgs::timeStampedFloat64>("srh/debug_timed_data",100);
 #endif
 
   }
@@ -128,6 +130,19 @@ namespace shadow_robot
 
       //add the last position to the queue
       joint_tmp->motor->actuator->state_.timestamp_ = timestamp;
+
+      #ifdef DEBUG_PUBLISHER
+        if (motor_index_full == 15)
+        {
+          if (intial_timestamp == 0.0)
+          {
+            intial_timestamp = timestamp;
+          }
+          msg_debug_2.timestamp = timestamp - intial_timestamp;
+          msg_debug_2.data = joint_tmp->motor->actuator->state_.position_unfiltered_;
+          debug_timestamped_publisher.publish(msg_debug_2);
+        }
+      #endif
 
       //filter the position and velocity
       std::pair<double, double> pos_and_velocity = joint_tmp->pos_filter.compute(
@@ -708,6 +723,26 @@ namespace shadow_robot
       case MOTOR_DATA_PWM:
         actuator->state_.pwm_ =
           static_cast<int>(static_cast<int16s>(status_data->motor_data_packet[index_motor_in_msg].misc));
+#ifdef DEBUG_PUBLISHER
+        if( joint_tmp->motor->motor_id == 16 )
+        {
+          //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
+          msg_debug.data = actuator->state_.pwm_;
+          debug_publishers[5].publish(msg_debug);
+        }
+        else if( joint_tmp->motor->motor_id == 15 )
+        {
+          //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
+          msg_debug.data = actuator->state_.pwm_;
+          debug_publishers[6].publish(msg_debug);
+        }
+        else if( joint_tmp->motor->motor_id == 17 )
+        {
+          //ROS_ERROR_STREAM("SGL " <<actuator->state_.strain_gauge_left_);
+          msg_debug.data = actuator->state_.pwm_;
+          debug_publishers[7].publish(msg_debug);
+        }
+#endif
         break;
       case MOTOR_DATA_FLAGS:
         actuator->state_.flags_ = humanize_flags(status_data->motor_data_packet[index_motor_in_msg].misc);
