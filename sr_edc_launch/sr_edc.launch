@@ -7,20 +7,24 @@
   <!-- Set to 0 if we don't want to run calibration controllers (e.g. for the muscle hand) -->
   <arg name="calibration_controllers" default="1"/>
   <!-- Xacro file containing the robot description we want to load -->
-  <arg name="robot_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro"/>
+  <arg name="robot_description" default="'$(find sr_description)/robots/shadowhand_motor.urdf.xacro'"/>
   <!-- The control mode PWM (true) or torque (false) -->
-  <arg name="pwm_control" default="$(optenv PWM_CONTROL 1)"/>
-  <!-- The ethercat serial number for the right hand -->
+  <arg name="pwm_control" default="$(optenv PWM_CONTROL 0)"/>
+  
+  <!-- use ns or not -->
+  <arg name="use_ns" default="false" />
+  <!-- The ethercat serial number for the hand -->
   <arg name="hand_serial" default="1050"/>
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
   <arg name="hand_id" default="rh"/>
+
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_ethercat.yaml"/>
-
+  
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg robot_description)' prefix:=$(arg hand_id)_"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_description) prefix:=$(arg hand_id)_"/>
 
 
   <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
@@ -32,7 +36,7 @@
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
     <arg name="hand_id" value="$(arg hand_id)"/>
     <arg name="pwm_control" value="$(arg pwm_control)"/>
-	<arg name="use_ns" value="$(arg use_ns)" />
+    <arg name="use_ns" value="$(arg use_ns)" />
     <arg name="mapping_path" value="$(arg mapping_path)"/>
   </include>
 
@@ -72,10 +76,10 @@
     </node>
   </group>
 
-  <group if="$(arg calibration_controllers)">
+    <group if="$(arg calibration_controllers)">
     <node name="calibrate_sr_edc" pkg="sr_utilities" type="calibrate_hand_finder.py" output="screen"/>
-    </group>
-
+  </group>
+  
   <!-- diagnostic aggregator for being able to see the results in the robot_monitor -->
   <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
     <rosparam command="load" file="$(find sr_ethercat_hand_config)/diagnostic_analyzer.yaml"/>
@@ -86,10 +90,11 @@
   <!-- Robot state publisher: transforming the joints angles to tf.  -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="100.0"/>
+	<param name="tf_prefix" type="string" value="$(arg tf_prefix)"/>
   </node>
   <!-- adding tactile state publisher using the tf prefix as a namespace -->
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
    <arg name="hand_id" value="$(arg hand_id)" />
   </include>
-
+  
 </launch>
