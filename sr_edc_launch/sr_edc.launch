@@ -26,11 +26,14 @@
   <!-- Loads the robot description from the file passed as an argument -->
   <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_description) prefix:=$(arg hand_id)_"/>
 
-
-  <param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
+  <!-- if we use a ns, we assume the driver handles only a single hand and we dont pass the mapping to the driver, only the joint mapping-->
+  <param if="$(arg use_ns)" name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
-  <!-- The prefix used by the robot_state_publisher -->
+  <param unless="$(arg use_ns)" name="/hand/mapping/$(arg hand_serial)" value=""/>
+   
+<!-- The prefix used by the robot_state_publisher -->
   <arg name="tf_prefix" default="" />
+  
 
   <!-- Load parameters for the hand -->
   <include file="$(find sr_edc_launch)/load_hand_parameters.xml">
