@@ -17,7 +17,6 @@
   <arg name="hand_serial" default="1050"/>
   <!-- The id for the right hand. It needs to be the same (but without trailing underscore) as the prefix used in the hand model. -->
   <arg name="hand_id" default="rh"/>
-
   <!-- the path to the mapping files -->
   <arg name="mapping_path" default="$(find sr_edc_launch)/mappings/default_mappings/rh_ethercat.yaml"/>
   
@@ -27,11 +26,12 @@
   <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_description) prefix:=$(arg hand_id)_"/>
 
   <!-- if we use a ns, we assume the driver handles only a single hand and we dont pass the mapping to the driver, only the joint mapping-->
+  
   <param if="$(arg use_ns)" name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
   <param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
   <param unless="$(arg use_ns)" name="/hand/mapping/$(arg hand_serial)" value=""/>
-   
-<!-- The prefix used by the robot_state_publisher -->
+  
+  <!-- The prefix used by the robot_state_publisher -->
   <arg name="tf_prefix" default="" />
   
 
