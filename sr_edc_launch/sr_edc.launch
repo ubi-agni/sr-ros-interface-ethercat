@@ -55,12 +55,6 @@
           launch-prefix="gdb -ex run -args"><!-- launch-prefix="xterm -hold -e strace -f -e trace=!gettimeofday,futex"/> -->
       <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
       <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
-      <!-- DIRTY HACK with remapping due to incoherent namespace usage. Will disappear on single realtime loop usage or tactile publisher separation -->
-      <remap from="/$(arg hand_id)/$(arg hand_id)/debug_etherCAT_data" to="/$(arg hand_id)/debug_etherCAT_data"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/tactile" to="/$(arg hand_id)/tactile"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/palm_extras" to="/$(arg hand_id)/palm_extras"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/tactile_aux_spi" to="/$(arg hand_id)/tactile_aux_spi"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/tactile_mid_prox" to="/$(arg hand_id)/tactile_mid_prox"/>
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
     </node>
   </group>
@@ -69,12 +63,6 @@
           args="-i $(arg eth_port) -r robot_description" output="screen" launch-prefix="ethercat_grant">
       <param if="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="PWM"/>
       <param unless="$(arg pwm_control)" name="$(arg hand_id)/default_control_mode" value="FORCE"/>
-      <!-- DIRTY HACK with remapping due to incoherent namespace usage. Will disappear on single realtime loop usage or tactile publisher separation -->
-      <remap from="/$(arg hand_id)/$(arg hand_id)/debug_etherCAT_data" to="/$(arg hand_id)/debug_etherCAT_data"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/tactile" to="/$(arg hand_id)/tactile"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/palm_extras" to="/$(arg hand_id)/palm_extras"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/tactile_aux_spi" to="/$(arg hand_id)/tactile_aux_spi"/>
-      <remap from="/$(arg hand_id)/$(arg hand_id)/tactile_mid_prox" to="/$(arg hand_id)/tactile_mid_prox"/>
       <param name="image_path" value="$(find sr_movements)/movements/test.png"/>
     </node>
   </group>
