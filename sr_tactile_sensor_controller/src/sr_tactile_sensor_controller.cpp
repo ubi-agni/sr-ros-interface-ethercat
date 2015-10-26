@@ -53,10 +53,17 @@ SrTactileSensorController::SrTactileSensorController()
 
 bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
 {
+  bool use_ns = true;
   std::string serial_id;
   std::string hand_id;
   std::string joint_prefix;
   std::map<std::string, std::string> joint_prefix_mapping;
+  ros::NodeHandle nh_priv("~");
+  
+  if (!nh_priv.getParam("use_ns", use_ns))
+  {
+    ROS_INFO("Private parameter 'use_ns' not set, default is using namespace");
+  }
   
   if (!controller_nh.getParam("prefix", joint_prefix))
   {
@@ -97,7 +104,11 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotState* hw, ros::No
 
   if (!hand_id.empty())
   {
-    nh_prefix_ = ros::NodeHandle(root_nh, hand_id);
+    if(use_ns)
+      nh_prefix_ = ros::NodeHandle(root_nh, hand_id);
+    else
+      nh_prefix_ = ros::NodeHandle(root_nh);
+      
     if (prefix_.empty())
     {
       prefix_ = hand_id + "_";
