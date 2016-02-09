@@ -19,6 +19,7 @@
   <build_depend>roscpp</build_depend>
   <build_depend>sr_robot_lib</build_depend>
   <build_depend>sr_robot_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
   <build_depend>tactile_msgs</build_depend>
   <build_depend>sr_hardware_interface</build_depend>
   
@@ -29,6 +30,7 @@
   <run_depend>roscpp</run_depend>
   <run_depend>sr_robot_lib</run_depend>
   <run_depend>sr_robot_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
   <run_depend>tactile_msgs</run_depend>
   <run_depend>sr_hardware_interface</run_depend>
 
