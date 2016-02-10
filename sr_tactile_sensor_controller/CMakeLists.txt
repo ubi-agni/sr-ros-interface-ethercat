@@ -12,12 +12,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sr_robot_lib
   sr_robot_msgs
+  tactile_msgs
   sr_hardware_interface
 )
 
 # Declare catkin package
 catkin_package(
-CATKIN_DEPENDS controller_interface sr_hardware_interface pluginlib sr_robot_msgs realtime_tools ros_ethercat_model sr_robot_lib
+CATKIN_DEPENDS controller_interface sr_hardware_interface pluginlib sr_robot_msgs tactile_msgs realtime_tools ros_ethercat_model sr_robot_lib
 INCLUDE_DIRS include
 LIBRARIES ${PROJECT_NAME}
 )
@@ -28,7 +29,8 @@ add_library(${PROJECT_NAME} src/sr_tactile_sensor_controller.cpp
                             src/sr_tactile_sensor_publisher.cpp
                             src/sr_pst_tactile_sensor_publisher.cpp
                             src/sr_biotac_tactile_sensor_publisher.cpp
-                            src/sr_ubi_tactile_sensor_publisher.cpp)
+                            src/sr_ubi_tactile_sensor_publisher.cpp
+                            src/sr_ubi_tactile_state_publisher.cpp)
 add_dependencies(sr_tactile_sensor_controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
