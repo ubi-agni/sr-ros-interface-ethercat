@@ -43,6 +43,7 @@
 #include <sr_tactile_sensor_controller/sr_pst_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_biotac_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_ubi_tactile_sensor_publisher.hpp>
+#include <sr_tactile_sensor_controller/sr_ubi_tactile_state_publisher.hpp>
 #include <string>
 
 
@@ -63,6 +64,10 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
 
   bool use_ns = true;
   ros::NodeHandle nh_priv("~");
+  std::string serial_id;
+  std::string hand_id;
+  std::string joint_prefix;
+  std::map<std::string, std::string> joint_prefix_mapping;
   
   try
   {
@@ -76,24 +81,57 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
 
   if (!nh_priv.getParam("use_ns", use_ns))
   {
-    ROS_INFO("Private parameter 'use_ns' not set, default is using namespace");  
+    ROS_INFO("Private parameter 'use_ns' not set, default is using namespace");
   }
   
-  if (!controller_nh.getParam("prefix", prefix_))
+  if (!controller_nh.getParam("prefix", joint_prefix))
   {
     ROS_ERROR("Parameter 'prefix' not set");
     return false;
   }
+  
+  if (!joint_prefix.empty())
+  {
+    prefix_ = joint_prefix + "_";
+ 
+    // find the serial that matches the joint_prefix
+    ros::param::get("/hand/joint_prefix", joint_prefix_mapping);
+    for (map<string, string>::const_iterator prefix_iter = joint_prefix_mapping.begin();
+           prefix_iter != joint_prefix_mapping.end(); ++prefix_iter)
+    {
+      if (prefix_ == prefix_iter->second)
+        serial_id = prefix_iter->first;
+    }
+    
+    // find the mapping for this serial
+    if (!serial_id.empty())
+    {
+      if (!root_nh.getParam("/hand/mapping/"+serial_id , hand_id))
+      {
+        ROS_INFO_STREAM("Mapping not set for serial_id " << serial_id << ", using prefix as hand_id");
+        hand_id = joint_prefix;
+      }
+    }
+    else
+    {
+      ROS_INFO_STREAM("Cannot find the serial corresponding to prefix " << prefix_);
+      //TODO: normally the sensors handlers should be found via serial_id, and hence fail here
+      // currently they are found via joint_prefix in one of the actuators, so we don't care yet.
+      hand_id = joint_prefix;
+    }
+  }
 
-  // this should handle the case where we don't want a prefix
-  if (!prefix_.empty())
+  if (!hand_id.empty())
   {
     if(use_ns)
-      nh_prefix_ = ros::NodeHandle(root_nh, prefix_);
+      nh_prefix_ = ros::NodeHandle(root_nh, hand_id);
     else
       nh_prefix_ = ros::NodeHandle(root_nh);
-        
-    prefix_+="_";
+
+    if (prefix_.empty())
+    {
+      prefix_ = hand_id + "_";
+    }
   }
   else
   {
@@ -132,35 +170,46 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
     {
       if (!sensors_->empty())
       {
-  if (!sensors_->at(0).type.empty())
-  {
-    if (sensors_->at(0).type == "pst")
-    {
-      sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-    }
-    else if (sensors_->at(0).type == "biotac")
-    {
-      sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-    }
-    else if (sensors_->at(0).type == "ubi")
-    {
-      sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-    }
-    else
-    {
-      ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
-    }
+        if (!sensors_->at(0).type.empty())
+        {
+          if (sensors_->at(0).type == "pst")
+          {
+            boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+          }
+          else if (sensors_->at(0).type == "biotac")
+          {
+            boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+          }
+          else if (sensors_->at(0).type == "ubi")
+          {
+            boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+            sensor_publisher.reset(new SrUbiTactileStatePublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+          }
+          else
+          {
+            ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
+          }
 
-    // initialize pusblisher and starting time
-    sensor_publisher_->init(time);
-    initialized_ = true;
-  }
+	      // initialize pusblisher and starting time
+          for (size_t i=0; i < sensor_publishers_.size(); ++i)
+          {
+            sensor_publishers_[i]->init(time);
+          }
+          initialized_ = true;
+        }
       }
     }
   }
   else
   {
-    sensor_publisher_->update(time, period);
+    for (size_t i=0; i < sensor_publishers_.size(); ++i)
+    {
+      sensor_publishers_[i]->update(time, period);
+    }
   }
 }
 
