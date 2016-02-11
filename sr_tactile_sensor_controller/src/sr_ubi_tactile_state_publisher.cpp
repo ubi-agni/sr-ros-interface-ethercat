@@ -36,6 +36,10 @@ void SrUbiTactileStatePublisher::init()
 void SrUbiTactileStatePublisher::update(const ros::Time& time, const ros::Duration& period)
 {
   bool ubi_published=false;
+  
+  //init time if not yet initialized
+  if (last_publish_time_.toSec() == 0.0)
+    last_publish_time_ = time;
   // limit rate of publishing
   if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
   {
