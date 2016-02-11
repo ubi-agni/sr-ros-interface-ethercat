@@ -42,6 +42,7 @@
 #include <sr_tactile_sensor_controller/sr_pst_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_biotac_tactile_sensor_publisher.hpp>
 #include <sr_tactile_sensor_controller/sr_ubi_tactile_sensor_publisher.hpp>
+#include <sr_tactile_sensor_controller/sr_ubi_tactile_state_publisher.hpp>
 
 using namespace std;
 
@@ -150,34 +151,45 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
     {
       if (!sensors_->empty())
       {
-	if (!sensors_->at(0).type.empty())
-	{
-	  if (sensors_->at(0).type == "pst")
-	  {
-	    sensor_publisher_.reset(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-	  }
-	  else if (sensors_->at(0).type == "biotac")
-	  {
-	    sensor_publisher_.reset(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-	  }
-	  else if (sensors_->at(0).type == "ubi")
-	  {
-	    sensor_publisher_.reset(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
-	  }
-	  else
-	  {
-	    ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
-	  }
+        if (!sensors_->at(0).type.empty())
+        {
+          if (sensors_->at(0).type == "pst")
+          {
+            boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher(new SrPSTTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+          }
+          else if (sensors_->at(0).type == "biotac")
+          {
+            boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher(new SrBiotacTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+          }
+          else if (sensors_->at(0).type == "ubi")
+          {
+            boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher(new SrUbiTactileSensorPublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+            sensor_publisher.reset(new SrUbiTactileStatePublisher(sensors_, publish_rate_, nh_prefix_, prefix_));
+            sensor_publishers_.push_back(sensor_publisher);
+          }
+          else
+          {
+            ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
+          }
 
-	  sensor_publisher_->init();
-	  initialized_ = true;
-	}
+          for (size_t i=0; i < sensor_publishers_.size(); ++i)
+          {
+            sensor_publishers_[i]->init();
+          }
+          initialized_ = true;
+        }
       }
     }
   }
   else
   {
-    sensor_publisher_->update(time, period);
+    for (size_t i=0; i < sensor_publishers_.size(); ++i)
+    {
+      sensor_publishers_[i]->update(time, period);
+    }
   }
 }
 
