@@ -70,7 +70,7 @@ protected:
   ros::NodeHandle nh_prefix_;
   std::string prefix_;
   bool initialized_;
-  boost::shared_ptr<SrTactileSensorPublisher> sensor_publisher_;
+  std::vector<boost::shared_ptr<SrTactileSensorPublisher> > sensor_publishers_;
 };
 
 }  // namespace controller
