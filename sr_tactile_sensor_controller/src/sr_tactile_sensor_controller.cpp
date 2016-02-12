@@ -194,9 +194,9 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
             ROS_FATAL_STREAM("Unknown tactile sensor type: " << sensors_->at(0).type);
           }
 
-	      // initialize pusblisher and starting time
           for (size_t i=0; i < sensor_publishers_.size(); ++i)
           {
+            // initialize pusblisher and starting time
             sensor_publishers_[i]->init(time);
           }
           initialized_ = true;
