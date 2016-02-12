@@ -177,7 +177,8 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
 
           for (size_t i=0; i < sensor_publishers_.size(); ++i)
           {
-            sensor_publishers_[i]->init();
+            // initialize pusblisher and starting time
+            sensor_publishers_[i]->init(time);
           }
           initialized_ = true;
         }
@@ -195,12 +196,13 @@ void SrTactileSensorController::update(const ros::Time& time, const ros::Duratio
 
 void SrTactileSensorController::starting(const ros::Time& time)
 {
-  // initialize time
-  last_publish_time_ = time;
 }
 
 void SrTactileSensorController::stopping(const ros::Time& time)
-{}
+{
+  // remove initialized flag to permit data type change and time resetting
+  initialized_ = false;
+}
 }
 
 
