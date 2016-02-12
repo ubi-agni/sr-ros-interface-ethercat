@@ -20,8 +20,11 @@ using namespace std;
 
 namespace controller
 {
-void SrUbiTactileStatePublisher::init()
+void SrUbiTactileStatePublisher::init(const ros::Time& time)
 {
+  // initialize time
+  last_publish_time_ = time;
+  
   // realtime publisher
   ubi_realtime_pub_ = UbiPublisherPtr(new realtime_tools::RealtimePublisher<tactile_msgs::TactileState>(nh_prefix_, "tactile_tip", 4));
   mid_realtime_pub_ = MidPublisherPtr(new realtime_tools::RealtimePublisher<tactile_msgs::TactileState>(nh_prefix_, "tactile_mid", 4));
@@ -92,9 +95,6 @@ void SrUbiTactileStatePublisher::update(const ros::Time& time, const ros::Durati
 {
   bool ubi_published=false;
   
-  //init time if not yet initialized
-  if (last_publish_time_.toSec() == 0.0)
-    last_publish_time_ = time;
   // limit rate of publishing
   if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time)
   {
