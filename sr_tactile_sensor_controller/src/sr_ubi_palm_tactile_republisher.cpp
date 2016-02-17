@@ -8,6 +8,7 @@
 
 
 #include "sr_tactile_sensor_controller/sr_ubi_palm_tactile_republisher.hpp"
+#include "sr_tactile_sensor_controller/sr_tactile_calibration.hpp"
 #include <boost/thread/locks.hpp>
 #include <string>
 
@@ -35,6 +36,9 @@ namespace shadowrobot
 
   void SrUbiPalmTactileRepublisher::init()
   {
+    // calibration maps
+    calibration_map_ = read_tactile_calibration(nh);
+    
     // initialize publisher
     tactile_pub_ = nh.advertise<tactile_msgs::TactileState>("tactile_palm", 1);
     
@@ -86,12 +90,35 @@ namespace shadowrobot
     }
   }
 
+  std::vector<float> SrUbiPalmTactileRepublisher::calibrate(std::string sensor_name, std::vector<float> &uncalibrated)
+  {
+    std::vector<float> calibrated(uncalibrated.size());
+    // calibrate the sensor
+    calibration_tmp_ = calibration_map_.find(sensor_name);
+    if (calibration_tmp_)
+    {
+      for (unsigned i=0; i<uncalibrated.size(); i++)
+      {
+          calibrated[i] = calibration_tmp_->compute(static_cast<double> (uncalibrated[i]));
+      }
+    }
+    else
+    {
+      ROS_WARN_STREAM_ONCE("at least one calibration not found for " << sensor_name << ", storing raw value instead");
+      for (unsigned i=0; i<uncalibrated.size(); i++)
+      {
+          calibrated[i] = static_cast<double> (uncalibrated[i]);
+      }
+    }
+    return calibrated;
+  }
+
   void SrUbiPalmTactileRepublisher::publish()
   {
     {
       boost::shared_lock<boost::shared_mutex> lock(mutex_);
-      tactile_msg_.sensors[0].values = palm_taxels_;
-      tactile_msg_.sensors[1].values = metacarpal_taxels_;
+      tactile_msg_.sensors[0].values = this->calibrate(tactile_msg_.sensors[0].name, palm_taxels_);
+      tactile_msg_.sensors[1].values = this->calibrate(tactile_msg_.sensors[1].name, metacarpal_taxels_);
       tactile_msg_.header.stamp = ros::Time::now();
       tactile_pub_.publish(tactile_msg_);
     }
