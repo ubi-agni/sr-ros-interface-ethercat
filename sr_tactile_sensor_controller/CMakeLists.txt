@@ -28,6 +28,7 @@ include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} src/sr_tactile_sensor_controller.cpp
                             src/sr_tactile_sensor_publisher.cpp
+                            src/sr_tactile_calibration.cpp
                             src/sr_pst_tactile_sensor_publisher.cpp
                             src/sr_biotac_tactile_sensor_publisher.cpp
                             src/sr_ubi_tactile_sensor_publisher.cpp
@@ -36,7 +37,7 @@ add_dependencies(sr_tactile_sensor_controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 add_executable(sr_ubi_palm_tactile_republisher src/sr_ubi_palm_tactile_republisher.cpp)
-target_link_libraries(sr_ubi_palm_tactile_republisher ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(sr_ubi_palm_tactile_republisher ${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 install(TARGETS sr_tactile_sensor_controller sr_ubi_palm_tactile_republisher
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

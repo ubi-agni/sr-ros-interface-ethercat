@@ -12,6 +12,7 @@
 /// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
 
 #include "sr_tactile_sensor_controller/sr_ubi_tactile_state_publisher.hpp"
+#include "sr_tactile_sensor_controller/sr_tactile_calibration.hpp"
 #include <pluginlib/class_list_macros.h>
 #include <sensor_msgs/ChannelFloat32.h>
 #include <string>
@@ -36,60 +37,8 @@ void SrUbiTactileStatePublisher::init(const ros::Time& time)
   prox_realtime_pub_->msg_.sensors.resize(sensors_->size());
   
   // calibration maps
-  calibration_map_ = this->read_tactile_calibration();
+  calibration_map_ = shadowrobot::read_tactile_calibration(nh_prefix_);
 }
-
-shadow_joints::CalibrationMap SrUbiTactileStatePublisher::read_tactile_calibration()
-{
-  shadow_joints::CalibrationMap tactile_calibration;
-
-  XmlRpc::XmlRpcValue calib;
-  nh_prefix_.getParam("ubi_calibrations", calib);
-  if(calib.getType() == XmlRpc::XmlRpcValue::TypeArray)
-  {
-    // iterate on all the sensors
-    for (int32_t index_cal = 0; index_cal < calib.size(); ++index_cal)
-    {
-      // check the calibration is well formatted:
-      // first sensor name, then calibration table
-      if (calib[index_cal][0].getType() == XmlRpc::XmlRpcValue::TypeString  && calib[index_cal][1].getType() == XmlRpc::XmlRpcValue::TypeArray)
-      {
-
-        string sensor_name = static_cast<string> (calib[index_cal][0]);
-        vector<joint_calibration::Point> calib_table_tmp;
-
-        // now iterates on the calibration table for the current joint
-        for (int32_t index_table = 0; index_table < calib[index_cal][1].size(); ++index_table)
-        {
-          if(calib[index_cal][1][index_table].getType() == XmlRpc::XmlRpcValue::TypeArray)
-          {
-            // only 2 values per calibration point: raw and calibrated (doubles)
-            if(calib[index_cal][1][index_table].size() == 2)
-            {
-              if(calib[index_cal][1][index_table][0].getType() == XmlRpc::XmlRpcValue::TypeDouble)
-              { 
-                if(calib[index_cal][1][index_table][1].getType() == XmlRpc::XmlRpcValue::TypeDouble)
-                {
-
-                  joint_calibration::Point point_tmp;
-                  point_tmp.raw_value = static_cast<double> (calib[index_cal][1][index_table][0]);
-                  point_tmp.calibrated_value = static_cast<double> (calib[index_cal][1][index_table][1]);
-                  calib_table_tmp.push_back(point_tmp);
-                  
-                }
-              }
-            }
-          }
-        }
-        ROS_DEBUG_STREAM("calib_table " << shadow_robot::JointCalibration(calib_table_tmp));
-
-        tactile_calibration.insert(sensor_name, boost::shared_ptr<shadow_robot::JointCalibration>(
-                                   new shadow_robot::JointCalibration(calib_table_tmp)));
-      }
-    }
-  }
-  return tactile_calibration;
-}  // end read_joint_calibration
 
 void SrUbiTactileStatePublisher::update(const ros::Time& time, const ros::Duration& period)
 {
