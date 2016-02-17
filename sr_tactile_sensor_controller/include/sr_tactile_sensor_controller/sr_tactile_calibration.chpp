@@ -1,0 +1,20 @@
+
+/**
+ * @file   sr_ubi_tactile_state_publisher.hpp
+ * @author Guillaume Walck <gwalck@techfak.uni-bielefeld.de>
+ * @date   Feb 08 2016
+ *
+ * Copyright 2015 Shadow Robot Company Ltd.
+ *
+ * @brief  Publishes ubi tactile state
+ *
+ */
+
+/// derived from ImuSensorController  author: Adolfo Rodriguez Tsouroukdissian
+
+#pragma once
+
+namespace controller
+{
+
+shadow_joints::CalibrationMap read_tactile_calibration();

@@ -35,13 +35,11 @@ public:
   virtual void init(const ros::Time& time);
   virtual void update(const ros::Time& time, const ros::Duration& period);
   
-  
   /// A temporary calibration for a given sensor.
   boost::shared_ptr<shadow_robot::JointCalibration> calibration_tmp_;
   
 
 protected: 
-  shadow_joints::CalibrationMap read_tactile_calibration();
   /// The map used to calibrate each tactile.
   shadow_joints::CalibrationMap calibration_map_;
   

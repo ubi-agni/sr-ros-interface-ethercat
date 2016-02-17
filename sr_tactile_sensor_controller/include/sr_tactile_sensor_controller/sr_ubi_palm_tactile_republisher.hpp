@@ -14,12 +14,16 @@
 
 #include <boost/smart_ptr.hpp>
 #include <boost/thread/shared_mutex.hpp>
-#include <string>
-#include <vector>
-
+#include <boost/shared_ptr.hpp>
+#include <sr_robot_lib/sr_joint_motor.hpp>
+#include <sr_utilities/calibration.hpp>
+#include <sr_utilities/thread_safe_map.hpp>
 #include <sr_robot_msgs/AuxSpiData.h>
 #include <std_msgs/Float64MultiArray.h> 
 #include <tactile_msgs/TactileState.h> 
+
+#include <string>
+#include <vector>
 
 #define NB_PALM_TAXELS 9
 #define NB_METACARPAL_TAXELS 3
@@ -39,6 +43,9 @@ namespace shadowrobot
      * publish the current tactile values
      */
     void publish();
+    
+    /// A temporary calibration for a given sensor.
+    boost::shared_ptr<shadow_robot::JointCalibration> calibration_tmp_;
 
   private:
   
@@ -57,6 +64,10 @@ namespace shadowrobot
     void init();
     void palm_aux_spi_cb(const sr_robot_msgs::AuxSpiDataConstPtr& msg);
     void palm_extra_cb(const std_msgs::Float64MultiArrayConstPtr& msg);
+    std::vector<float> calibrate(std::string sensor_name, std::vector<float> &uncalibrated);
+    /// The map used to calibrate each tactile.
+    shadow_joints::CalibrationMap calibration_map_;
+  
   };
 }  // namespace shadowrobot
 
