@@ -18,16 +18,26 @@ using namespace std;
 namespace shadowrobot
 {
   SrUbiPalmTactileRepublisher::SrUbiPalmTactileRepublisher():
-    publish_rate(DEFAULT_PUBLISH_RATE)
+  publish_rate_(DEFAULT_PUBLISH_RATE), prefix_("")
   {
     palm_taxels_.resize(NB_PALM_TAXELS);
     metacarpal_taxels_.resize(NB_METACARPAL_TAXELS);
     
+    ros::NodeHandle nh_priv("~");
+    // read parameters
+    nh_priv.getParam("prefix", prefix_);
+    double rate;
+    if(nh_priv.getParam("publish_rate", rate))
+    {
+      publish_rate_= ros::Rate(rate);
+    }
+    
+    
     // prepare the recurrent tactile message
     tactile_msg_.sensors.resize(2);
-    tactile_msg_.sensors[0].name = "palm";
+    tactile_msg_.sensors[0].name = prefix_ + "palm";
     tactile_msg_.sensors[0].values.resize(NB_PALM_TAXELS);
-    tactile_msg_.sensors[1].name = "lfmetacarpal";
+    tactile_msg_.sensors[1].name = prefix_ + "lfmetacarpal";
     tactile_msg_.sensors[1].values.resize(NB_METACARPAL_TAXELS);
     
     // init publisher/subscribers
@@ -122,7 +132,7 @@ namespace shadowrobot
       tactile_msg_.header.stamp = ros::Time::now();
       tactile_pub_.publish(tactile_msg_);
     }
-    publish_rate.sleep();
+    publish_rate_.sleep();
   }
 
 }  // namespace shadowrobot

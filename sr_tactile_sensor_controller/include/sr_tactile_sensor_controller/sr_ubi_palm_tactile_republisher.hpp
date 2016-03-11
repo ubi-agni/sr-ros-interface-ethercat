@@ -50,11 +50,11 @@ namespace shadowrobot
   private:
   
     ros::NodeHandle nh;
-    ros::Rate publish_rate;
+    ros::Rate publish_rate_;
+    std::string prefix_;
     ros::Publisher tactile_pub_;
     ros::Subscriber tac_aux_spi_sub_;
     ros::Subscriber tac_palm_extras_sub_;
-    std::string prefix_;
     std::vector<float> palm_taxels_;
     std::vector<float> metacarpal_taxels_;
     tactile_msgs::TactileState tactile_msg_;
