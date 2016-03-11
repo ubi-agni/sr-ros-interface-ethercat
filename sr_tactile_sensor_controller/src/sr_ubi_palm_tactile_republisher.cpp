@@ -83,7 +83,7 @@ namespace shadowrobot
     if (analog_data_found) 
     {
       // all analog values except last
-      metacarpal_taxels_.assign(msg->data.begin() + dataoffset, msg->data.begin() + dataoffset + datasize - 2);
+      metacarpal_taxels_.assign(msg->data.begin() + dataoffset, msg->data.begin() + dataoffset + datasize - 1);
     
       // last value belongs to palm, add it at the very end
       palm_taxels_[NB_AUX_CHANNELS] = msg->data[dataoffset + datasize - 1];
