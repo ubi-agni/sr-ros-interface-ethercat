@@ -100,7 +100,7 @@ void SrUbiTactileStatePublisher::update(const ros::Time& time, const ros::Durati
       // populate message
       mid_realtime_pub_->msg_.header.stamp = time;
       //mid_realtime_pub_->msg_.header.frame_id = prefix_+"middle";
-      // data
+      // data of fingers (no data fore the thumb)
       for (unsigned i=0; i<sensors_->size(); i++)
       {
         sensor_msgs::ChannelFloat32 sensor_tmp;
@@ -112,7 +112,15 @@ void SrUbiTactileStatePublisher::update(const ros::Time& time, const ros::Durati
           ss << prefix_ << "middle" << i;
           sensor_tmp.name = ss.str();
         }
-        sensor_tmp.values.resize(sensors_->at(i).ubi0.middle.size());
+        //sensor_tmp.values.resize(sensors_->at(i).ubi0.middle.size());
+        if (i < 4)
+        {
+          sensor_tmp.values.resize(2); //only two meaningful fields for fingers
+        }
+        else
+        {
+          sensor_tmp.values.clear(); //no data for the thumb
+        }
         
         for (unsigned j=0; j<sensor_tmp.values.size(); j++)
         {
@@ -154,7 +162,15 @@ void SrUbiTactileStatePublisher::update(const ros::Time& time, const ros::Durati
           ss << prefix_ << "proximal" << i;
           sensor_tmp.name = ss.str();
         }
-        sensor_tmp.values.resize(sensors_->at(i).ubi0.proximal.size());
+        //sensor_tmp.values.resize(sensors_->at(i).ubi0.proximal.size());
+        if (i < 4)
+        {
+          sensor_tmp.values.resize(3); //only three meaningful fields for fingers
+        }
+        else
+        {
+          sensor_tmp.values.clear(); //no data for the thumb
+        }
         
         for (unsigned j=0; j<sensor_tmp.values.size(); j++)
         {
