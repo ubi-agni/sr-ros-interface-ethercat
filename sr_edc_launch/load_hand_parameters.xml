@@ -35,6 +35,10 @@
       <arg name="hand_id" value="$(arg hand_id)"/>
       <arg name="mapping_path" value="$(arg mapping_path)"/>
     </include>
+
+    <!-- tactile calibration -->
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/tactile_calibration.yaml" />
+
   </group>
 
   <group unless="$(arg use_ns)">
@@ -55,6 +59,10 @@
       <arg name="hand_id" value="$(arg hand_id)"/>
       <arg name="mapping_path" value="$(arg mapping_path)"/>
     </include>
+
+    <!-- tactile calibration -->
+    <rosparam command="load" file="$(find sr_ethercat_hand_config)/calibrations/$(arg hand_id)/tactile_calibration.yaml" />
+
   </group>
 
 </launch>
