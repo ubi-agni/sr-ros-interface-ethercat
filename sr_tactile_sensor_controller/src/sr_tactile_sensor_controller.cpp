@@ -221,6 +221,7 @@ void SrTactileSensorController::stopping(const ros::Time& time)
 {
   // remove initialized flag to permit data type change and time resetting
   initialized_ = false;
+  sensor_publishers_.clear();
 }
 }  // namespace controller
 
