@@ -96,7 +96,7 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
  
     // find the serial that matches the joint_prefix
     ros::param::get("/hand/joint_prefix", joint_prefix_mapping);
-    for (map<string, string>::const_iterator prefix_iter = joint_prefix_mapping.begin();
+    for (std::map<std::string, std::string>::const_iterator prefix_iter = joint_prefix_mapping.begin();
            prefix_iter != joint_prefix_mapping.end(); ++prefix_iter)
     {
       if (prefix_ == prefix_iter->second)
