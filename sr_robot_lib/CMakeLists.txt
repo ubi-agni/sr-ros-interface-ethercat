@@ -59,6 +59,9 @@ catkin_package(
 	DEPENDS TinyXML2
 )
 
+add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)
+add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
+
 add_library(sr_hand_lib
         src/UBI0.cpp
         src/biotac.cpp
