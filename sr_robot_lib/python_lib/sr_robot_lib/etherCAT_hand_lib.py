@@ -77,7 +77,7 @@ class EtherCAT_Hand_Lib(object):
                     = rospy.get_param(self.hand_id + "/joint_to_sensor_mapping")
             except:
                 rospy.logwarn("The parameter joint_to_sensor_mapping "
-                              "was not found, you won't be able to get the "
+                              "was not found for hand id (" + self.hand_id + ") you won't be able to get the "
                               "raw values from the EtherCAT compound sensors.")
         except:
             pass
@@ -250,15 +250,22 @@ class EtherCAT_Hand_Lib(object):
     def activate(self):
         # check if something is being published to those topics, otherwise
         # return false (the library is not activated)
+        print rospy.get_namespace()
+        print self.hand_id
+        if (self.hand_id != "" and rospy.get_namespace() != ("/" + self.hand_id + "/")):
+            hand_id = self.hand_id + "/"
+        else:
+            hand_id = ""
         try:
-            rospy.wait_for_message(self.hand_id + "/debug_etherCAT_data",
-                                   EthercatDebug, timeout=0.2)
-            rospy.wait_for_message("joint_states", JointState, timeout=0.2)
+            rospy.wait_for_message(hand_id + "debug_etherCAT_data",
+                                   EthercatDebug, timeout=2)
+            rospy.wait_for_message("joint_states", JointState, timeout=2)
         except:
+            print ("did not find message on (" + rospy.get_namespace() +  hand_id + "debug_etherCAT_data)")
             return False
 
         self.debug_subscriber =\
-            rospy.Subscriber(self.hand_id + "/debug_etherCAT_data",
+            rospy.Subscriber(hand_id + "debug_etherCAT_data",
                              EthercatDebug, self.debug_callback)
         self.joint_state_subscriber =\
             rospy.Subscriber("joint_states",
