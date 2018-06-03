@@ -177,6 +177,17 @@ namespace shadow_robot
                                                                           motor_wrapper->motor_id));
 
         ss.str("");
+        ss << "change_maxPWM_" << joint_names[index];
+        motor_wrapper->change_maxpwm_service =
+                this->nh_tilde.template advertiseService<sr_robot_msgs::ChangeMaxPWM::Request,
+                        sr_robot_msgs::ChangeMaxPWM::Response>(ss.str().c_str(),
+                                                                  boost::bind(
+                                                                          &SrMotorHandLib<StatusType,
+                                                                                  CommandType>::max_pwm_callback,
+                                                                          this, _1, _2,
+                                                                          pair<int, string>(motor_wrapper->motor_id, joint.joint_name)));
+
+        ss.str("");
         ss << "reset_motor_" << joint_names[index];
         // initialize the reset motor service
         motor_wrapper->reset_motor_service =
@@ -421,6 +432,94 @@ namespace shadow_robot
 
     // Reinitialize motors information
     this->reinitialize_motors();
+
+    return true;
+  }
+  
+  template<class StatusType, class CommandType>
+  bool SrMotorHandLib<StatusType, CommandType>::max_pwm_callback(sr_robot_msgs::ChangeMaxPWM::Request &request,
+                                                                   sr_robot_msgs::ChangeMaxPWM::Response &response,
+                                                                   std::pair<int, std::string> joint)
+  {
+    ROS_INFO_STREAM("Received new max PWM parameters for motor " << joint.second << " (" << joint.first << ")");
+
+    const string joint_name = joint.second;
+    const int motor_index = joint.first;
+    // Check the parameters are in the correct ranges
+    if (motor_index > 20)
+    {
+      ROS_WARN_STREAM(" Wrong motor index specified: " << motor_index);
+      response.configured = false;
+      return false;
+    }
+
+    if (!((request.maxpwm >= MOTOR_DEMAND_PWM_RANGE_MIN) &&
+          (request.maxpwm <= MOTOR_DEMAND_PWM_RANGE_MAX))
+            )
+    {
+      ROS_WARN_STREAM(" pid parameter maxpwm is out of range : " << request.maxpwm << " -> not in [" <<
+                      MOTOR_DEMAND_PWM_RANGE_MIN << " ; " << MOTOR_DEMAND_PWM_RANGE_MAX << "]");
+      response.configured = false;
+      return false;
+    }
+
+    // read the other arameters from the parameter server and set the pid
+    // values.
+    ostringstream full_param;
+
+    int f, p, i, d, imax, sg_left, sg_right, deadband, sign, torque_limit, torque_limiter_gain;
+    string act_name = boost::to_lower_copy(joint_name);
+
+    full_param << act_name << "/pid/f";
+    this->nodehandle_.template param<int>(full_param.str(), f, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/p";
+    this->nodehandle_.template param<int>(full_param.str(), p, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/i";
+    this->nodehandle_.template param<int>(full_param.str(), i, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/d";
+    this->nodehandle_.template param<int>(full_param.str(), d, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/imax";
+    this->nodehandle_.template param<int>(full_param.str(), imax, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/sgleftref";
+    this->nodehandle_.template param<int>(full_param.str(), sg_left, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/sgrightref";
+    this->nodehandle_.template param<int>(full_param.str(), sg_right, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/deadband";
+    this->nodehandle_.template param<int>(full_param.str(), deadband, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/sign";
+    this->nodehandle_.template param<int>(full_param.str(), sign, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/torque_limit";
+    this->nodehandle_.template param<int>(full_param.str(), torque_limit, 0);
+    full_param.str("");
+    full_param << act_name << "/pid/torque_limiter_gain";
+    this->nodehandle_.template param<int>(full_param.str(), torque_limiter_gain, 0);
+    full_param.str("");
+
+    sr_robot_msgs::ForceController::Request pid_request;
+    pid_request.maxpwm = request.maxpwm;  // only max_pwm is changed
+    pid_request.sgleftref = sg_left;
+    pid_request.sgrightref = sg_right;
+    pid_request.f = f;
+    pid_request.p = p;
+    pid_request.i = i;
+    pid_request.d = d;
+    pid_request.imax = imax;
+    pid_request.deadband = deadband;
+    pid_request.sign = sign;
+    pid_request.torque_limit = torque_limit;
+    pid_request.torque_limiter_gain = torque_limiter_gain;
+    sr_robot_msgs::ForceController::Response pid_response;
+
+    response.configured = force_pid_callback(pid_request, pid_response, motor_index);
 
     return true;
   }

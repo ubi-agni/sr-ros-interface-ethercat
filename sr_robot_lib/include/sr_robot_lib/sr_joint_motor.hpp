@@ -106,6 +106,12 @@ public:
   ros::ServiceServer force_pid_service;
 
   /**
+   * A service used to set the max PWM settings on the
+   * motor.
+   */
+  ros::ServiceServer change_maxpwm_service;
+
+  /**
    * A service used to reset the
    * motors.
    */

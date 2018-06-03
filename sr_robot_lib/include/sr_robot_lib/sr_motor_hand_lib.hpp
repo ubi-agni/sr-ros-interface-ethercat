@@ -65,6 +65,21 @@ public:
                           int motor_index);
 
   /**
+   * The service callback for setting the Max PWM values. There's only one callback
+   * function, but it can called for any motors. We know which motor called the service
+   * thanks to the motor_index.
+   *
+   * @param request The request contains the new mwx pwm for the controllers.
+   * @param response True if succeeded.
+   * @param motor_index The index of the motor for which the service has been called.
+   *
+   * @return true if succeeded.
+   */
+  bool max_pwm_callback(sr_robot_msgs::ChangeMaxPWM::Request &request,
+                        sr_robot_msgs::ChangeMaxPWM::Response &response,
+                        std::pair<int, std::string> joint);
+
+  /**
    * Reset the motor at motor index.
    *
    * @param request empty
