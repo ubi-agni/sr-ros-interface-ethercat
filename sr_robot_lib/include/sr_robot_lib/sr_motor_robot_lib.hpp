@@ -29,6 +29,7 @@
 #include "sr_robot_lib/sr_robot_lib.hpp"
 
 #include <sr_robot_msgs/ForceController.h>
+#include <sr_robot_msgs/ChangeMaxPWM.h>
 #include <sr_robot_msgs/ControlType.h>
 #include <sr_robot_msgs/ChangeControlType.h>
 #include <sr_robot_msgs/MotorSystemControls.h>
