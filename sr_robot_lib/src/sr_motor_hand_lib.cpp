@@ -174,7 +174,7 @@ namespace shadow_robot
                                                                           &SrMotorHandLib<StatusType,
                                                                                   CommandType>::force_pid_callback,
                                                                           this, _1, _2,
-                                                                          motor_wrapper->motor_id));
+                                                                          motor_wrapper->motor_id, true));
 
         ss.str("");
         ss << "change_maxPWM_" << joint_names[index];
@@ -315,7 +315,8 @@ namespace shadow_robot
   template<class StatusType, class CommandType>
   bool SrMotorHandLib<StatusType, CommandType>::force_pid_callback(sr_robot_msgs::ForceController::Request &request,
                                                                    sr_robot_msgs::ForceController::Response &response,
-                                                                   int motor_index)
+                                                                   int motor_index,
+                                                                   bool update_parameters)
   {
     ROS_INFO_STREAM("Received new force PID parameters for motor " << motor_index);
 
@@ -424,7 +425,8 @@ namespace shadow_robot
                                         request.d, request.imax, request.deadband, request.sign,
                                         request.torque_limit, request.torque_limiter_gain);
 
-    update_force_control_in_param_server(find_joint_name(motor_index), request.maxpwm, request.sgleftref,
+    if (update_parameters)
+      update_force_control_in_param_server(find_joint_name(motor_index), request.maxpwm, request.sgleftref,
                                          request.sgrightref, request.f, request.p, request.i,
                                          request.d, request.imax, request.deadband, request.sign,
                                          request.torque_limit, request.torque_limiter_gain);
@@ -519,7 +521,8 @@ namespace shadow_robot
     pid_request.torque_limiter_gain = torque_limiter_gain;
     sr_robot_msgs::ForceController::Response pid_response;
 
-    response.configured = force_pid_callback(pid_request, pid_response, motor_index);
+    // apply the change but explicitely do not save to the parameters server
+    response.configured = force_pid_callback(pid_request, pid_response, motor_index, false);
 
     return true;
   }

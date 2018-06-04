@@ -57,12 +57,14 @@ public:
    * @param request The request contains the new parameters for the controllers.
    * @param response True if succeeded.
    * @param motor_index The index of the motor for which the service has been called.
+   * @param update_parameters True (default) if modified parameters should be updated on the parameters server
    *
    * @return true if succeeded.
    */
   bool force_pid_callback(sr_robot_msgs::ForceController::Request &request,
                           sr_robot_msgs::ForceController::Response &response,
-                          int motor_index);
+                          int motor_index,
+                          bool update_parameters=true);
 
   /**
    * The service callback for setting the Max PWM values. There's only one callback
