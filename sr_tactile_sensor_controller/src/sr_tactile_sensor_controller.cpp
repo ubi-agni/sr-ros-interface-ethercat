@@ -58,7 +58,7 @@ bool SrTactileSensorController::init(ros_ethercat_model::RobotStateInterface* hw
 {
   ROS_ASSERT(hw);
 
-  ros_ethercat_model::RobotState* robot_state;
+  ros_ethercat_model::RobotState* robot_state=NULL;
   std::string robot_state_name;
   controller_nh.param<std::string>("robot_state_name", robot_state_name, "unique_robot_hw");
 
