@@ -34,6 +34,8 @@ catkin_package(
         LIBRARIES sr_edc_ethercat_drivers
 )
 
+SET(GCC_NEWDTAGS_LINK_FLAGS "-Wl,--disable-new-dtags")
+SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCC_NEWDTAGS_LINK_FLAGS}")
 
 add_library(sr_edc_ethercat_drivers src/sr0x.cpp src/sr_edc.cpp src/sr06.cpp src/sr08.cpp src/sr09.cpp src/sr_edc_muscle.cpp src/srbridge.cpp src/motor_trace_buffer.cpp)
 add_dependencies(sr_edc_ethercat_drivers ${sr_edc_ethercat_drivers_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
