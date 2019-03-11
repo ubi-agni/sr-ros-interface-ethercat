@@ -41,6 +41,9 @@ catkin_package(
         LIBRARIES sr_edc_ethercat_drivers
 )
 
+SET(GCC_NEWDTAGS_LINK_FLAGS "-Wl,--disable-new-dtags")
+SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCC_NEWDTAGS_LINK_FLAGS}")
+
 add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)
 add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
 
