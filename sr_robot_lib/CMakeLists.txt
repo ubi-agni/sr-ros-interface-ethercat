@@ -56,7 +56,7 @@ catkin_package(
         rospy
         INCLUDE_DIRS include
         LIBRARIES sr_hand_lib
-	DEPENDS TinyXML2
+        DEPENDS tinyxml2
 )
 
 add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)
