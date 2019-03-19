@@ -108,7 +108,8 @@ public:
         }
       }
 
-      if (command->from_motor_data_type == MOTOR_DATA_CAN_NUM_RECEIVED)
+
+      if (fabs(time_spent.toSec() - (static_cast<double>(static_cast<int>(time_spent.toSec())))) < tolerancy)
       {
         can_num_transmitted_counter++;
         if (fabs(time_spent.toSec() - (can_num_transmitted_counter * test3.when_to_update)) < tolerancy)
