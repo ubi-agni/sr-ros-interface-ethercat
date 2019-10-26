@@ -49,6 +49,7 @@ catkin_package(
         INCLUDE_DIRS include
         LIBRARIES sr_hand_lib
 )
+set (CMAKE_CXX_STANDARD 11)
 
 add_library(sr_hand_lib
         src/UBI0.cpp

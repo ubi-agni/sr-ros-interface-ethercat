@@ -25,7 +25,7 @@ LIBRARIES ${PROJECT_NAME}
 )
 
 include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
-
+set (CMAKE_CXX_STANDARD 11)
 add_library(${PROJECT_NAME} src/sr_tactile_sensor_controller.cpp
                             src/sr_tactile_sensor_publisher.cpp
                             src/sr_tactile_calibration.cpp
