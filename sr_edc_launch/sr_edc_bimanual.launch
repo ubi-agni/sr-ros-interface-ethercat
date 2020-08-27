@@ -32,7 +32,7 @@
   <param name="/use_sim_time" value="false"/>
 
   <!-- Loads the robot description from the file passed as an argument -->
-  <param if="$(arg load_robot_description)" name="robot_description" command="$(find xacro)/xacro.py $(arg robot_description)"/>
+  <param if="$(arg load_robot_description)" name="robot_description" command="xacro $(arg robot_description)"/>
 
   <param name="/hand/mapping/$(arg rh_serial)" value="$(arg rh_id)"/>
   <param name="/hand/mapping/$(arg lh_serial)" value="$(arg lh_id)"/>
@@ -120,8 +120,5 @@
   <include file="$(find sr_tactile_sensor_controller)/sr_tactile_sensor.launch">
    <arg name="hand_id" value="$(arg lh_id)" />
   </include>
-
-
-  <node name="teach_mode_node" pkg="sr_robot_launch" type="teach_mode_node" output="screen"/>
 
 </launch>
