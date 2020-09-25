@@ -69,20 +69,22 @@ class EtherCAT_Hand_Lib(object):
         self.compounds = {}
 
         joint_to_sensor_mapping = []
+        hand_id_prefix = '' if self.hand_id == '' else "/" + self.hand_id
         try:
-            rospy.wait_for_message(self.hand_id + "/debug_etherCAT_data",
-                                   EthercatDebug, timeout=0.2)
+            rospy.wait_for_message(hand_id_prefix + "/debug_etherCAT_data",
+                                   EthercatDebug, timeout=0.5)
             try:
                 joint_to_sensor_mapping \
-                    = rospy.get_param(self.hand_id + "/joint_to_sensor_mapping")
+                    = rospy.get_param(hand_id_prefix + "/joint_to_sensor_mapping")
             except:
                 rospy.logwarn("The parameter joint_to_sensor_mapping "
                               "was not found for hand id (" + self.hand_id + ") you won't be able to get the "
                               "raw values from the EtherCAT compound sensors.")
         except:
+            print "debug_etherCAT_data not found"
             pass
-
         for mapping in joint_to_sensor_mapping:
+
             if mapping[0] is 1:
                 if "THJ5" in mapping[1][0]:
                     self.compounds["THJ5"] = [["THJ5A", mapping[1][1]],
